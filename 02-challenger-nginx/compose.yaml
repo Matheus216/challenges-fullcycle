@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  # nginx:
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: Dockerfile.prod
+  #   image: theusgtsdocker/nginx-image
+  #   networks:
+  #     - node-network
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - app
+
+  app:
+    build:
+      context: ./node-app
+    container_name: app
+    image: theusgtsdocker/node-image
+    expose:
+      - "3000"
+    networks:
+      - node-network
+    depends_on:
+      - db
+    tty: true
+    entrypoint: wait-for db:3306 -t 40 -- bash -c "npm install && npm start"
+    volumes:
+      - ./node-app/app:/home/node/app
+    ports:
+      - "8080:3000"
+  
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    volumes:
+      - ./nodedb:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - node-network
+    tty: true
+  
+networks:
+  node-network:
+    driver: bridge
