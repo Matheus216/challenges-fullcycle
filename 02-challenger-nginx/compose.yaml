@@ -1,17 +1,19 @@
 version: '3'
 
 services:
-  # nginx:
-  #   build:
-  #     context: ./nginx
-  #     dockerfile: Dockerfile.prod
-  #   image: theusgtsdocker/nginx-image
-  #   networks:
-  #     - node-network
-  #   ports:
-  #     - "8080:80"
-  #   depends_on:
-  #     - app
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: theusgtsdocker/nginx-node
+    container_name: nginx-node
+    restart: always
+    networks:
+      - node-network
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
 
   app:
     build:
@@ -29,7 +31,7 @@ services:
     volumes:
       - ./node-app/app:/home/node/app
     ports:
-      - "8080:3000"
+      - 3001:3000
   
   db:
     image: mysql:5.7
